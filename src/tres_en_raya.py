@@ -59,7 +59,6 @@ def realizar_jugada(tablero: list[list[str]], fila: int, columna: int, jugador: 
         print("¡Casilla ocupada! Inténtalo de nuevo.")
         return False
 
-
 def verificar_ganador(tablero: list[list[str]], jugador: str) -> bool:
     """
     Verifica si el jugador actual ha ganado el juego de tres en raya.
@@ -83,39 +82,74 @@ def verificar_ganador(tablero: list[list[str]], jugador: str) -> bool:
     for fila in range(3):
         if all(tablero[fila][columna] == jugador for columna in range(3)) or all(tablero[columna][fila] == jugador for columna in range(3)):
             return True
-
     # Verificar diagonales
     if all(tablero[fila][fila] == jugador for fila in range(3)) or all(tablero[fila][2 - fila] == jugador for fila in range(3)):
         return True
-
     return False
-  
+
+def obtener_entrada_numero(mensaje: str) -> int:
+    """
+    Solicita al usuario un número mediante un mensaje y asegura que la entrada sea un número entero válido.
+
+    Parameters
+    ----------
+    - mensaje : str
+        El mensaje que se mostrará al usuario para solicitar la entrada.
+
+    Returns
+    -------
+    - int: 
+        El número entero ingresado por el usuario.
+    """
+    entrada_valida = False
+    while not entrada_valida:
+        entrada = input(mensaje)
+        if entrada.isdigit():
+            return int(entrada)
+        else:
+            print("¡Error! Ingresa un número válido.")
 
 if __name__ == "__main__":
-    tablero = crear_tablero()
-    jugadores = ["X", "O"]
-    turno = 0
+    jugar_nuevamente = True
 
-    for _ in range(9):
-        imprimir_tablero(tablero)
+    while jugar_nuevamente:
+        tablero = crear_tablero()
+        jugadores = ["X", "O"]
+        turno = 0
+        juego_terminado = False
 
-        jugador_actual = jugadores[turno % 2]
-        print(f"Turno del jugador {jugador_actual}")
+        for _ in range(9):
+            imprimir_tablero(tablero)
 
-        fila = int(input("Ingresa el número de fila (0, 1, 2): "))
-        columna = int(input("Ingresa el número de columna (0, 1, 2): "))
+            jugador_actual = jugadores[turno % 2]
+            print(f"Turno del jugador {jugador_actual}")
 
-        if 0 <= fila < 3 and 0 <= columna < 3:
+            fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
+            columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
+
+            while not (0 <= fila < 3 and 0 <= columna < 3):
+                print("¡Posición inválida! Inténtalo de nuevo.")
+                fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
+                columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
+
             if realizar_jugada(tablero, fila, columna, jugador_actual):
                 if verificar_ganador(tablero, jugador_actual):
                     imprimir_tablero(tablero)
                     print(f"¡El jugador {jugador_actual} ha ganado!")
+                    juego_terminado = True
                 elif all(tablero[i][j] != " " for i in range(3) for j in range(3)):
                     imprimir_tablero(tablero)
                     print("¡Es un empate!")
+                    juego_terminado = True
                 turno += 1
-        else:
-            print("¡Posición inválida! Inténtalo de nuevo.")
 
-    imprimir_tablero(tablero)
-    print("El juego ha terminado. ¡Es un empate!")
+            if juego_terminado:
+                break
+
+        imprimir_tablero(tablero)
+        print("El juego ha terminado.")
+
+        respuesta = input("¿Quieres jugar otra vez? (si/no): ").lower()
+        jugar_nuevamente = (respuesta == "si")
+
+    print("¡Hasta luego!")
