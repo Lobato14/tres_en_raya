@@ -1,3 +1,8 @@
+# Total de jugadas en el tres en raya
+TOTALTURNOS = 9
+# Dimension 3x3 del tres en raya
+DIMENSION = 3
+
 def imprimir_tablero(tablero: list[list[str]]) -> None:
     """
     Imprime el tablero del juego de tres en raya en la consola.
@@ -26,7 +31,7 @@ def crear_tablero() -> list[list[str]]:
     - list[list[str]]: Un tablero vacío representado como una lista de listas.
       Cada elemento de la lista interna es una cadena que puede ser "X", "O" o " ".
     """
-    return [[" " for _ in range(3)] for _ in range(3)]
+    return [[" " for _ in range(DIMENSION)] for _ in range(DIMENSION)]
 
 def realizar_jugada(tablero: list[list[str]], fila: int, columna: int, jugador: str) -> bool:
     """
@@ -56,16 +61,15 @@ def realizar_jugada(tablero: list[list[str]], fila: int, columna: int, jugador: 
         tablero[fila][columna] = jugador
         return True
     else:
-        print("¡Casilla ocupada! Inténtalo de nuevo.")
         return False
 
-def verificar_ganador(tablero: list[list[str]], jugador: str) -> bool:
+def hay_ganador(tablero: list[list[str]], jugador: str) -> bool:
     """
     Verifica si el jugador actual ha ganado el juego de tres en raya.
 
     Parameters
     ----------
-    - tablero : list[List[str]]
+    - tablero : list[list[str]]
         El tablero actual del juego representado como una lista de listas.
         Cada elemento de la lista interna es una cadena que puede ser "X", "O" o " ".
 
@@ -78,14 +82,19 @@ def verificar_ganador(tablero: list[list[str]], jugador: str) -> bool:
     - bool: 
         True si el jugador ha ganado, False en caso contrario.
     """
-    # Verificar filas y columnas
-    for fila in range(3):
-        if all(tablero[fila][columna] == jugador for columna in range(3)) or all(tablero[columna][fila] == jugador for columna in range(3)):
-            return True
+    encontrado = False
+    
     # Verificar diagonales
-    if all(tablero[fila][fila] == jugador for fila in range(3)) or all(tablero[fila][2 - fila] == jugador for fila in range(3)):
-        return True
-    return False
+    if all(tablero[i][i] == jugador for i in range(DIMENSION)) or all(tablero[i][(DIMENSION -1) - i] == jugador for i in range(DIMENSION)):
+        encontrado = True 
+        
+    # Verificar filas y columnas
+    i = 0  
+    while not encontrado and i < DIMENSION:
+        if all( tablero[i][columna] == jugador for columna in range(DIMENSION)) or all(tablero[fila][i] == jugador for fila in range(DIMENSION)):
+            encontrado = True
+        i += 1
+    return encontrado 
 
 def obtener_entrada_numero(mensaje: str) -> int:
     """
@@ -105,9 +114,25 @@ def obtener_entrada_numero(mensaje: str) -> int:
     while not entrada_valida:
         entrada = input(mensaje)
         if entrada.isdigit():
-            return int(entrada)
+            entrada_valida = True
         else:
             print("¡Error! Ingresa un número válido.")
+    
+    return int(entrada)
+        
+
+def pedir_posicion():
+    fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
+    columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
+
+    while not (0 <= fila < 3 and 0 <= columna < 3):
+        print("¡Posición inválida! Inténtalo de nuevo.")
+        fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
+        columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
+    return fila,columna
+
+def turno_jugador(jugadores, turno):
+    return jugadores[turno % 2]
 
 if __name__ == "__main__":
     jugar_nuevamente = True
@@ -115,39 +140,29 @@ if __name__ == "__main__":
     while jugar_nuevamente:
         tablero = crear_tablero()
         jugadores = ["X", "O"]
-        turno = 0
+        turno = 1
         juego_terminado = False
 
-        for _ in range(9):
+        while not juego_terminado:
             imprimir_tablero(tablero)
 
-            jugador_actual = jugadores[turno % 2]
+            jugador_actual = turno_jugador(jugadores, turno)
             print(f"Turno del jugador {jugador_actual}")
 
-            fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
-            columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
-
-            while not (0 <= fila < 3 and 0 <= columna < 3):
-                print("¡Posición inválida! Inténtalo de nuevo.")
-                fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
-                columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
+            fila, columna = pedir_posicion()
 
             if realizar_jugada(tablero, fila, columna, jugador_actual):
-                if verificar_ganador(tablero, jugador_actual):
+                if hay_ganador(tablero, jugador_actual):
                     imprimir_tablero(tablero)
                     print(f"¡El jugador {jugador_actual} ha ganado!")
                     juego_terminado = True
-                elif all(tablero[i][j] != " " for i in range(3) for j in range(3)):
+                elif turno == TOTALTURNOS:
                     imprimir_tablero(tablero)
                     print("¡Es un empate!")
                     juego_terminado = True
                 turno += 1
-
-            if juego_terminado:
-                break
-
-        imprimir_tablero(tablero)
-        print("El juego ha terminado.")
+            else:
+                print("Casilla ocupada!!")
 
         respuesta = input("¿Quieres jugar otra vez? (si/no): ").lower()
         jugar_nuevamente = (respuesta == "si")
