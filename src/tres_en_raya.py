@@ -73,19 +73,6 @@ def realizar_jugada(tablero: list[list[str]], fila: int, columna: int, jugador: 
     else:
         return False
 
-def realizar_jugada_maquina(tablero, jugador_maquina):
-    # Encuentra todas las posiciones vacías en el tablero
-    posiciones_disponibles = [(fila, columna) for fila in range(DIMENSION) for columna in range(DIMENSION) if tablero[fila][columna] == " "]
-
-    if posiciones_disponibles:
-        # Elije una posición aleatoria de las disponibles
-        fila, columna = random.choice(posiciones_disponibles)
-        realizar_jugada(tablero, fila, columna, jugador_maquina)
-        return fila, columna
-    else:
-        return None
-
-
 def hay_ganador(tablero: list[list[str]], jugador: str) -> bool:
     """
     Verifica si el jugador actual ha ganado el juego de tres en raya.
@@ -166,7 +153,15 @@ def obtener_entrada_simbolo(mensaje: str) -> str:
             print("¡Error! Ingresa un símbolo válido (X o O).")
     return entrada
 
-def pedir_posicion():
+def pedir_posicion() -> tuple:
+    """
+    Solicita al usuario ingresar la posición deseada en el tablero del juego.
+    
+    Returns
+    -------
+    - tuple: 
+        Una tupla que contiene dos valores, representando la fila y la columna elegidas.
+    """
     fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
     columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
 
@@ -174,12 +169,64 @@ def pedir_posicion():
         print("¡Posición inválida! Inténtalo de nuevo.")
         fila = obtener_entrada_numero("Ingresa el número de fila (0, 1, 2): ")
         columna = obtener_entrada_numero("Ingresa el número de columna (0, 1, 2): ")
-    return fila,columna
+    return fila, columna
 
-def turno_jugador(jugadores, turno):
-    return jugadores[turno % 2]
+def turno_jugador(turno:int) -> str:
+    """
+    Determina el jugador cuyo turno es actual, basándose en el número de turnos jugados.
 
-def elegir_jugador():
+    Parameters
+    ----------
+
+    - turno : int
+        Número de turnos jugados hasta el momento.
+
+    Returns
+    -------
+
+    - str: 
+        El identificador del jugador cuyo turno es actual.
+    """
+    return JUGADORES[turno % 2]
+
+def realizar_jugada_maquina(tablero:list[list[str]], jugador_maquina:str) -> tuple:
+    """
+    Realiza una jugada automática para la máquina en el juego. 
+    La máquina elige una posición aleatoria entre las disponibles.
+
+    Parameters
+    ----------
+
+    tablero : list
+        La representación del tablero del juego.
+    jugador_maquina : str
+        El identificador del jugador máquina ('O' o 'X').
+
+    Returns
+    -------
+    tuple or None: Una tupla que contiene la fila y la columna de la jugada realizada 
+    por la máquina, o None si no hay posiciones disponibles en el tablero.
+                  
+    """
+    # Encuentra todas las posiciones vacías en el tablero
+    posiciones_disponibles = [(fila, columna) for fila in range(DIMENSION) for columna in range(DIMENSION) if tablero[fila][columna] == " "]
+
+    if posiciones_disponibles:
+        # Elije una posición aleatoria de las disponibles
+        fila, columna = random.choice(posiciones_disponibles)
+        realizar_jugada(tablero, fila, columna, jugador_maquina)
+        return fila, columna
+    else:
+        return None
+
+def elegir_jugador() -> str:
+    """
+    Solicita al usuario elegir el jugador O o X para comenzar el juego.
+
+    Returns
+    -------
+    str: El identificador del jugador elegido ('O' o 'X').
+    """
     return input("Elige el jugador O o el jugador X: ").lower()
 
 if __name__ == "__main__":
