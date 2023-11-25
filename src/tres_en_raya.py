@@ -3,6 +3,8 @@ import random
 TOTALTURNOS = 9
 # Dimension 3x3 del tres en raya
 DIMENSION = 3
+# Diccionario de los jugadores posibles en el tres en raya
+JUGADORES = ["X", "O"]
 
 def menu() -> str:
     print("-----¡¡¡BIENVENIDOS AL TRES EN RAYA!!!--------\n\n" +
@@ -79,7 +81,6 @@ def realizar_jugada_maquina(tablero, jugador_maquina):
         # Elije una posición aleatoria de las disponibles
         fila, columna = random.choice(posiciones_disponibles)
         realizar_jugada(tablero, fila, columna, jugador_maquina)
-        print(f"La máquina ha realizado su jugada en la fila {fila}, columna {columna}.")
         return fila, columna
     else:
         return None
@@ -189,17 +190,19 @@ if __name__ == "__main__":
         if opcion == "1":
 
             tablero = crear_tablero()
-            jugadores = ["X", "O"]
             turno = 1
             juego_terminado = False
             jugar_nuevamente = True
 
             while jugar_nuevamente:
-                while not juego_terminado:
+                tablero = crear_tablero() 
+                turno = 1
+                juego_terminado = False
 
+                while not juego_terminado:
                     imprimir_tablero(tablero)
 
-                    jugador_actual = turno_jugador(jugadores, turno)
+                    jugador_actual = turno_jugador(JUGADORES, turno)
                     print(f"Turno del jugador {jugador_actual}")
 
                     fila, columna = pedir_posicion()
@@ -225,17 +228,24 @@ if __name__ == "__main__":
             jugador_usuario = obtener_entrada_simbolo("Elige el jugador O o el jugador X: ")
             jugador_maquina = "X" if jugador_usuario == "O" else "O"
 
+            tablero = crear_tablero()
+            turno = 1
+            juego_terminado = False
+            jugar_nuevamente = True
+            
             while jugar_nuevamente:
+                tablero = crear_tablero()  # Reinicializar el tablero
+                turno = 1  # Reinicializar el turno
+                juego_terminado = False
+
                 while not juego_terminado:
                     imprimir_tablero(tablero)
 
-                    jugador_actual = turno_jugador(jugadores, turno)
+                    jugador_actual = turno_jugador(JUGADORES, turno)
                     print(f"Turno del jugador {jugador_actual}")
 
                     if jugador_actual == jugador_usuario:
-
                         fila, columna = pedir_posicion()
-
                         if realizar_jugada(tablero, fila, columna, jugador_actual):
                             if hay_ganador(tablero, jugador_actual):
                                 imprimir_tablero(tablero)
@@ -249,11 +259,9 @@ if __name__ == "__main__":
                         else:
                             print("Casilla ocupada!!")
                     else:
-                        
                         jugada_maquina = realizar_jugada_maquina(tablero, jugador_maquina)
 
                         if jugada_maquina:
-                            
                             fila_maquina, columna_maquina = jugada_maquina
                             print(f"La máquina ha realizado su jugada en la fila {fila_maquina}, columna {columna_maquina}.")
                             
